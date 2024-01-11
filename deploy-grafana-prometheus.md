@@ -47,6 +47,7 @@ docker-compose up -d
 > [!TIP]
 > don't forget to delete `proxy_url: http://localhost:80/` in the `prometheus/prometheus.yml` file if running on your own local server :+1:
 
+<br></br>
 **Reference dashboard template:**
 
 Nvidia GPU Metrics:
