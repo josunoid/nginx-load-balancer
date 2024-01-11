@@ -54,3 +54,7 @@ https://grafana.com/grafana/dashboards/14574-nvidia-gpu-metrics
 
 Node Exporter Full:
 https://grafana.com/grafana/dashboards/12486-node-exporter-full
+
+[FremisN - Nginx Exporter Dashboard](/fremisn-nginx-exporter.json)
+
+[Log Metrics FRemis-N Dashboard](/log-metric-fremisn.json)
