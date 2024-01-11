@@ -3,7 +3,7 @@
 This deployment process is an integral part of [Deploy Grafana Prometheus](./deploy-grafana-prometheus.md)
 
 In folder `v4-centralized-monitoring` create new file called `exporter.yml`
-``` console
+```
 listen:
   port: 9114
   address: "0.0.0.0"
@@ -25,7 +25,7 @@ namespaces:
 change `app` and `environment` according to the project name or server name.
 
 Edit file `docker-compose.yml` at folder `v4-centralized-monitoring`, add command below:
-``` console
+```
   nginxlog-exporter:
     image: quay.io/martinhelmich/prometheus-nginxlog-exporter
     command: -config-file /etc/exporter.yml
