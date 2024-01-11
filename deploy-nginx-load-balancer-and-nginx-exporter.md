@@ -1,6 +1,6 @@
 # Overview Load Balancing
 Load balance HTTP traffic across web or application server groups, with several algorithms and advanced features like slow-start and session persistence.
-Load balancing across multiple application instances is a commonly used technique for optimizing resource utilization, maximizing throughput, reducing latency, and ensuring fault‑tolerant configurations
+Load balancing across multiple application instances is a commonly used technique for optimizing resource utilization, maximizing throughput, reducing latency, and ensuring fault‑tolerant configurations[^1].
 
 ## Proxying HTTP Traffic to a Group of Servers
 To start using NGINX Open Source to load balance HTTP traffic to a group of servers, first you need to define the group with the upstream directive. The directive is placed in the http context.
@@ -121,7 +121,7 @@ http {
 }
 ```
 # Additional Information
-## Choosing a Load-Balancing Method
+## Choosing a Load-Balancing Method [^2]
 NGINX Open Source supports four load‑balancing methods
 * Round Robin – Requests are distributed evenly across the servers, with server weights taken into consideration. This method is used by default (there is no directive for enabling it):
   ``` console
@@ -164,4 +164,8 @@ NGINX Open Source supports four load‑balancing methods
   }
   ```
   The optional consistent parameter to the hash directive enables ketama consistent‑hash load balancing. Requests are evenly distributed across all upstream servers based on the user‑defined hashed key value. If an upstream server is added to or removed from an upstream group, only a few keys are remapped which minimizes cache misses in the case of load‑balancing cache servers or other applications that accumulate state.
-  
+
+
+Reference:
+[^1]: [Nginx Load Balancing](https://docs.nginx.com/nginx/admin-guide/load-balancer/http-load-balancer/)
+[^2]: [Choosing a Load-Balancing Method](https://docs.nginx.com/nginx/admin-guide/load-balancer/http-load-balancer/#choosing-a-load-balancing-method)
