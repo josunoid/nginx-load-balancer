@@ -6,7 +6,7 @@ Load balancing across multiple application instances is a commonly used techniqu
 To start using NGINX Open Source to load balance HTTP traffic to a group of servers, first you need to define the group with the upstream directive. The directive is placed in the http context.
 Servers in the group are configured using the server directive (not to be confused with the server block that defines a virtual server running on NGINX). 
 For example, the following configuration defines a group named backend and consists of three server configurations (which may resolve in more than three actual servers):
-``` console
+```
 upstream api_servers {
     # Load-Balancing Method        
     #list service
@@ -20,7 +20,7 @@ upstream api_servers {
 Create a folder to save file configuration, example `sudo mkdir load-balancer`
 Move to folder `load-balancer` and create file `docker-compose.yml`
 fill file with below command
-``` console
+```
 version : "2.2"
 services:
 
@@ -35,7 +35,7 @@ services:
     restart: always
 ```
 in folder `load-balancer`, create a new folder with name `nginx`, and create new file name `nginx.conf`
-``` console
+```
 # you must set worker processes based on your CPU cores, nginx does not benefit from setting more than that
 worker_processes auto; #some last versions calculate it automatically
 
@@ -124,7 +124,7 @@ http {
 ## Choosing a Load-Balancing Method [^2]
 NGINX Open Source supports four load‑balancing methods
 * Round Robin – Requests are distributed evenly across the servers, with server weights taken into consideration. This method is used by default (there is no directive for enabling it):
-  ``` console
+  ```
   upstream backend {
    # no load balancing method is specified for Round Robin
    server backend1.example.com;
@@ -132,7 +132,7 @@ NGINX Open Source supports four load‑balancing methods
   }
   ```
 * Least Connections – A request is sent to the server with the least number of active connections, again with server weights taken into consideration:
-  ``` console
+  ```
   upstream backend {
     least_conn;
     server backend1.example.com;
@@ -140,7 +140,7 @@ NGINX Open Source supports four load‑balancing methods
   }
   ```
 * IP Hash – The server to which a request is sent is determined from the client IP address. In this case, either the first three octets of the IPv4 address or the whole IPv6 address are used to calculate the hash value. The method guarantees that requests from the same address get to the same server unless it is not available.
-  ``` console
+  ```
   upstream backend {
     ip_hash;
     server backend1.example.com;
@@ -148,7 +148,7 @@ NGINX Open Source supports four load‑balancing methods
   }
   ```
   If one of the servers needs to be temporarily removed from the load‑balancing rotation, it can be marked with the down parameter in order to preserve the current hashing of client IP addresses. Requests that were to be processed by this server are automatically sent to the next server in the group:
-  ``` console
+  ```
   upstream backend {
     server backend1.example.com;
     server backend2.example.com;
@@ -156,7 +156,7 @@ NGINX Open Source supports four load‑balancing methods
   }
   ```
 * Generic Hash – The server to which a request is sent is determined from a user‑defined key which can be a text string, variable, or a combination. For example, the key may be a paired source IP address and port, or a URI as in this example:
-  ``` console
+  ```
   upstream backend {
     hash $request_uri consistent;
     server backend1.example.com;
