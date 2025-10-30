@@ -114,7 +114,7 @@ Penting: Karena ini adalah server web yang berjalan terus-menerus, Anda harus me
 ```
 nohup python3 stream_monitor.py &
 ```
-Pastikan port 9898 terbuka di firewall server ini (sama seperti saat Anda memecahkan masalah Pushgateway).
+Pastikan port 9898 terbuka di firewall server.
 
 ## Konfigurasi Prometheus
 Pada file `prometheus.yml` (di server Prometheus), tambahkan job baru.
@@ -138,7 +138,9 @@ scrape_configs:
 Muat ulang konfigurasi Prometheus.
 Pergi ke Prometheus UI (/targets) dan pastikan custom-stream-exporter berstatus UP dan di-scrape dengan interval 60 detik.
 
-[!NOTE]
+
+>[!NOTE]
+> For your information
 
 Monitoring ini adalah membaca file jason dari API yang disediakan oleh visionaire
 1. http://192.168.103.46:4004/streams : untuk mendapatkan semua stream, dan mem-parsing menjadi bentuk API untuk mendapatkan detail stream (API no. 2)
@@ -153,7 +155,10 @@ Monitoring ini adalah membaca file jason dari API yang disediakan oleh visionair
     "state": "RUNNING"
    ```
 
-[!CAUTION]
+
+>[!TIP]
+>Explore sendiri untuk mendapatkan visualisasi dashboard grafana lebih baik
+
 
 Contoh Dashboard Grafana (Unfinish Visualization)
 
