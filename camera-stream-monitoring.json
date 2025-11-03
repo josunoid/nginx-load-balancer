@@ -1,0 +1,273 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 94,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "dYnncVKVk"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "fillOpacity": 85,
+            "lineWidth": 1,
+            "spanNulls": false
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "text": "🔴 DOWN"
+                },
+                "1": {
+                  "text": "🟢 UP"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 22,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "alignValue": "right",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "mergeValues": false,
+        "rowHeight": 0.9,
+        "showValue": "always",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "dYnncVKVk"
+          },
+          "editorMode": "code",
+          "expr": "max by (stream_name) (camera_stream_status_up{stream_name=~\"${location}\"})",
+          "legendFormat": "{{stream_name}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Camera Stream Timeline (Grouped per Location)",
+      "type": "state-timeline"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 37,
+  "style": "dark",
+  "tags": [
+    "camera",
+    "timeline",
+    "status"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "Soekarno-Hatta (Soetta/T2/T3) (55)",
+          "value": "(?i).*(Soetta|T2|T3).*"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Location",
+        "multi": false,
+        "name": "location",
+        "options": [
+          {
+            "selected": false,
+            "text": "Juanda/Surabaya (13)",
+            "value": "(?i).*(Juanda|Surabaya).*"
+          },
+          {
+            "selected": false,
+            "text": "Hasanuddin (Makassar) (4)",
+            "value": "(?i).*Hasanuddin.*"
+          },
+          {
+            "selected": false,
+            "text": "Sepinggan (Balikpapan) (4)",
+            "value": "(?i).*Sepinggan.*"
+          },
+          {
+            "selected": false,
+            "text": "Sam Ratulangi (Manado) (4)",
+            "value": "(?i).*Ratula(ngi|nui).*"
+          },
+          {
+            "selected": false,
+            "text": "Adi Soemarmo (Solo) (4)",
+            "value": "(?i).*(Adi Soemarmo|Soemarno).*"
+          },
+          {
+            "selected": false,
+            "text": "Lombok (5)",
+            "value": "(?i).*LOMBOK.*"
+          },
+          {
+            "selected": false,
+            "text": "Nongsapura (8)",
+            "value": "(?i).*Nongsapura.*"
+          },
+          {
+            "selected": false,
+            "text": "Sekupang (8)",
+            "value": "(?i).*Sekupang.*"
+          },
+          {
+            "selected": false,
+            "text": "YIA (Yogyakarta) (4)",
+            "value": "(?i).*YIA.*"
+          },
+          {
+            "selected": false,
+            "text": "BODYWORN (199)",
+            "value": "(?i).*BODYWORN.*"
+          },
+          {
+            "selected": false,
+            "text": "Sistik (2)",
+            "value": "(?i).*Sistik.*"
+          },
+          {
+            "selected": true,
+            "text": "Soekarno-Hatta (Soetta/T2/T3) (55)",
+            "value": "(?i).*(Soetta|T2|T3).*"
+          },
+          {
+            "selected": false,
+            "text": "Kertajati (5)",
+            "value": "(?i).*Kertajati.*"
+          },
+          {
+            "selected": false,
+            "text": "Kualanamu (6)",
+            "value": "(?i).*Kualanamu.*"
+          },
+          {
+            "selected": false,
+            "text": "Lagoi (4)",
+            "value": "(?i).*Lagoi.*"
+          },
+          {
+            "selected": false,
+            "text": "Aruk (8)",
+            "value": "(?i).*ARUK.*"
+          },
+          {
+            "selected": false,
+            "text": "Entikong (12)",
+            "value": "(?i).*ENTIKONG.*"
+          },
+          {
+            "selected": false,
+            "text": "Jagoi Babang (8)",
+            "value": "(?i).*JAGOI.*"
+          },
+          {
+            "selected": false,
+            "text": "Harbour Bay (9)",
+            "value": "(?i).*Harbour Bay.*"
+          },
+          {
+            "selected": false,
+            "text": "Marina (4)",
+            "value": "(?i).*Marina.*"
+          },
+          {
+            "selected": false,
+            "text": "Batam Center (20)",
+            "value": "(?i).*BATAM CENTER.*"
+          },
+          {
+            "selected": false,
+            "text": "Nanga Badau (7)",
+            "value": "(?i).*(Nanga Badau|NANGAN BADAU).*"
+          },
+          {
+            "selected": false,
+            "text": "Ngurah Rai (Bali) (24)",
+            "value": "(?i).*NGURAH RAI.*"
+          }
+        ],
+        "query": "",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "10s",
+      "30s",
+      "1m",
+      "5m"
+    ]
+  },
+  "timezone": "",
+  "title": "Camera Stream Timeline v30",
+  "uid": "camstream-v30-final",
+  "version": 4,
+  "weekStart": ""
+}

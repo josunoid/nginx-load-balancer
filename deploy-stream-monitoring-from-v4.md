@@ -2,8 +2,26 @@
 
 Ini adalah dokumentasi tambahan jika ingin monitoring stream visionaire.
 
+## Membuat folder baru
+Buat folder baru bernama `stream-monitor` di dalam folder v4-centralized-monitoring (folder dimana grafana - prometheus berada), isi direktory akan seperti ini:
+```
+host@hostname:/opt/v4-centralized-monitoring/stream-monitor$ ls -al
+total 28
+drwxr-xr-x 2 root root 4096 Nov  3 10:54 .
+drwxr-xr-x 8 root root 4096 Nov  3 10:33 ..
+-rw-r--r-- 1 root root  516 Nov  3 10:52 docker-compose.yml
+-rw-r--r-- 1 root root  513 Nov  3 10:53 Dockerfile
+-rw-r--r-- 1 root root   27 Nov  3 10:52 requirements.txt
+-rw-r--r-- 1 root root 5738 Nov  3 10:40 stream_monitor.py
+```
+
 ## Membuat file baru
-Buat dulu file `stream_monitor.py` di dalam folder v4-centralized-monitoring (folder dimana grafana - prometheus berada)
+### requirement.txt
+```
+requests
+prometheus_client
+```
+### stream_monitor.py
 ```
 import requests
 from prometheus_client import CollectorRegistry, Gauge, generate_latest
@@ -14,17 +32,16 @@ import time
 
 # --- KONFIGURASI API ---
 API_BASE_URLS = [
-    "http://10.0.28.11:4004",
-    "http://10.10.2.19:4004",
-    "http://10.10.8.19:4004",
-    "http://10.5.19.19:4004",
-    "http://10.2.62.19:4004",
-    "http://10.5.31.19:4004",
-    "http://10.5.30.19:4004",
-    "http://10.5.35.19:4004" 
-
-
+    "http://10.0.28.11:4004", #kuningan (termasuk Sepinggan, Juanda, dll.)
+    "http://10.10.2.19:4004", #soetta
+    "http://10.10.104.29:4004", #ngurahrai
+    "http://10.5.19.19:4004", #entikong
+    "http://10.2.62.19:4004", #harbourbay
+    "http://10.5.31.19:4004", #nangabadau
+    "http://10.5.30.19:4004", #aruk
+    "http://10.5.35.19:4004" #jagoibabang
 ]
+# Port yang harus sama dengan konfigurasi Prometheus
 EXPORTER_PORT = 9898 
 # -----------------------
 
@@ -126,7 +143,9 @@ class PrometheusHandler(BaseHTTPRequestHandler):
             except Exception as e:
                 print(f"CRITICAL ERROR during metric generation/response: {e}")
                 self.send_response(500)
+                self.send_header('Content-Type', 'text/plain; version=0.0.4; charset=utf-8')
                 self.end_headers()
+                self.wfile.write(f"Exporter Internal Error: {e}".encode('utf-8')) # Memberikan pesan error 500
         else:
             self.send_response(404)
             self.end_headers()
@@ -143,19 +162,87 @@ def run_exporter():
 
 if __name__ == '__main__':
     run_exporter()
+```
+### Dockerfile
+```
+# Gunakan image Python 3.9 yang ringan sebagai basis
+FROM python:3.9-slim
+
+# Tetapkan direktori kerja di dalam container
+WORKDIR /app
+
+# Salin file requirements.txt untuk menginstal dependensi terlebih dahulu
+COPY requirements.txt .
+
+# Instal dependensi Python
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Salin skrip aplikasi utama
+COPY stream_monitor.py .
+
+# Expose port yang digunakan oleh exporter (9898)
+EXPOSE 9899
+
+# Perintah default saat container dijalankan
+CMD ["python3", "stream_monitor.py"]
+```
+### docker-compose.yml
+```
+version: '3.8'
+
+services:
+  # Definisi layanan untuk exporter metrik
+  stream-exporter:
+    # Perintah untuk membangun image dari Dockerfile di direktori saat ini
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    
+    # Nama container yang mudah diidentifikasi
+    container_name: custom-stream-exporter
+    
+    # Menggunakan mode host network: Penting untuk mengakses IP 10.x.x.x
+    network_mode: host
+    
+    # Atur agar container selalu restart kecuali dihentikan secara manual
+    restart: always
+```
+Setelah semua file sudah ada, jalankan dengan command `docker-compose -up -d`. Anda akan membutuhkan internet untuk proses ini, karena proses build membutuhkan depedencies file yang harus di download.
 
 ```
-
-## Jalankan Custom Exporter
-Jalankan skrip di server Anda (misalnya di server 10.0.28.11 atau di server lain yang memiliki akses ke 10.0.28.11:4004).
-
-Penting: Karena ini adalah server web yang berjalan terus-menerus, Anda harus menjalankannya di latar belakang dan memastikannya up (misalnya menggunakan nohup, screen, atau systemd service).
-
+host@hostname:/opt/v4-centralized-monitoring/stream-monitor$ docker-compose up -d
+Building stream-exporter
+[+] Building 14.8s (11/11) FINISHED                                                                                                              docker:default
+ => [internal] load build definition from Dockerfile                                                                                                       0.0s
+ => => transferring dockerfile: 552B                                                                                                                       0.0s
+ => [internal] load .dockerignore                                                                                                                          0.0s
+ => => transferring context: 2B                                                                                                                            0.0s
+ => [internal] load metadata for docker.io/library/python:3.9-slim                                                                                         6.7s
+ => [auth] library/python:pull token for registry-1.docker.io                                                                                              0.0s
+ => [internal] load build context                                                                                                                          0.0s
+ => => transferring context: 5.86kB                                                                                                                        0.0s
+ => [1/5] FROM docker.io/library/python:3.9-slim@sha256:2d97f6910b16bd338d3060f261f53f144965f755599aab1acda1e13cf1731b1b                                   2.6s
+ => => resolve docker.io/library/python:3.9-slim@sha256:2d97f6910b16bd338d3060f261f53f144965f755599aab1acda1e13cf1731b1b                                   0.0s
+ => => sha256:b3ec39b36ae8c03a3e09854de4ec4aa08381dfed84a9daa075048c2e3df3881d 1.29MB / 1.29MB                                                             0.9s
+ => => sha256:fc74430849022d13b0d44b8969a953f842f59c6e9d1a0c2c83d710affa286c08 13.88MB / 13.88MB                                                           0.9s
+ => => sha256:ea56f685404adf81680322f152d2cfec62115b30dda481c2c450078315beb508 251B / 251B                                                                 0.5s
+ => => sha256:2d97f6910b16bd338d3060f261f53f144965f755599aab1acda1e13cf1731b1b 10.36kB / 10.36kB                                                           0.0s
+ => => sha256:dad5b29e3506c35e0fd222736f4d4ef25d21b219acdd73f7bb41d59996ca8e0d 1.74kB / 1.74kB                                                             0.0s
+ => => sha256:085da638e1b8a449514c3fda83ff50a3bffae4418b050cfacd87e5722071f497 5.40kB / 5.40kB                                                             0.0s
+ => => extracting sha256:b3ec39b36ae8c03a3e09854de4ec4aa08381dfed84a9daa075048c2e3df3881d                                                                  0.2s
+ => => extracting sha256:fc74430849022d13b0d44b8969a953f842f59c6e9d1a0c2c83d710affa286c08                                                                  1.5s
+ => => extracting sha256:ea56f685404adf81680322f152d2cfec62115b30dda481c2c450078315beb508                                                                  0.0s
+ => [2/5] WORKDIR /app                                                                                                                                     0.1s
+ => [3/5] COPY requirements.txt .                                                                                                                          0.0s
+ => [4/5] RUN pip install --no-cache-dir -r requirements.txt                                                                                               5.1s
+ => [5/5] COPY stream_monitor.py .                                                                                                                         0.0s
+ => exporting to image                                                                                                                                     0.3s
+ => => exporting layers                                                                                                                                    0.3s
+ => => writing image sha256:46394b3e6b79003a3f39601485ef851b6d53ef2173e88f7624daf3b48a837ed8                                                               0.0s
+ => => naming to docker.io/library/stream-monitor_stream-exporter                                                                                          0.0s
+WARNING: Image for service stream-exporter was built because it did not already exist. To rebuild this image you must use `docker-compose build` or `docker-compose up --build`.
+Creating custom-stream-exporter ... done
 ```
-nohup python3 stream_monitor.py &
-```
-Pastikan port 9898 terbuka di firewall server.
-
 ## Konfigurasi Prometheus
 Pada file `prometheus.yml` (di server Prometheus), tambahkan job baru.
 ```
@@ -190,10 +277,6 @@ Monitoring ini adalah membaca file jason dari API yang disediakan oleh visionair
 
 
 >[!TIP]
->Explore sendiri untuk mendapatkan visualisasi dashboard grafana lebih baik
+>Explore sendiri untuk mendapatkan visualisasi dashboard grafana lebih baik.
 
-
-Contoh Dashboard Grafana (Unfinish Visualization)
-
-![alt text](image.png)
-![alt text](image-1.png)
+Contoh dashboard: 
