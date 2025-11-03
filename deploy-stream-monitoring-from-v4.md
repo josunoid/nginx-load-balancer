@@ -279,4 +279,4 @@ Monitoring ini adalah membaca file jason dari API yang disediakan oleh visionair
 >[!TIP]
 >Explore sendiri untuk mendapatkan visualisasi dashboard grafana lebih baik.
 
-Contoh dashboard: 
+Contoh dashboard: camera-stream-monitoring.json
