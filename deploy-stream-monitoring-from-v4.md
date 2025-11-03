@@ -32,14 +32,14 @@ import time
 
 # --- KONFIGURASI API ---
 API_BASE_URLS = [
-    "http://10.0.28.11:4004", #kuningan (termasuk Sepinggan, Juanda, dll.)
-    "http://10.10.2.19:4004", #soetta
-    "http://10.10.104.29:4004", #ngurahrai
-    "http://10.5.19.19:4004", #entikong
-    "http://10.2.62.19:4004", #harbourbay
-    "http://10.5.31.19:4004", #nangabadau
-    "http://10.5.30.19:4004", #aruk
-    "http://10.5.35.19:4004" #jagoibabang
+    "http://10.0.28.11:4004", 
+    "http://10.10.2.19:4004",
+    "http://10.10.104.29:4004",
+    "http://10.5.19.19:4004",
+    "http://10.2.62.19:4004",
+    "http://10.5.31.19:4004",
+    "http://10.5.30.19:4004",
+    "http://10.5.35.19:4004" 
 ]
 # Port yang harus sama dengan konfigurasi Prometheus
 EXPORTER_PORT = 9898 
