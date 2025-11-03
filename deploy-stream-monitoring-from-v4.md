@@ -279,4 +279,4 @@ Monitoring ini adalah membaca file jason dari API yang disediakan oleh visionair
 >[!TIP]
 >Explore sendiri untuk mendapatkan visualisasi dashboard grafana lebih baik.
 
-Contoh dashboard: camera-stream-monitoring.json
+Contoh dashboard: [camera-stream-monitoring.json](https://github.com/josunoid/nginx-load-balancer/blob/7c00dfe932b4fe90e04047fb9802b0dd679c1ff1/camera-stream-monitoring.json)
