@@ -1,0 +1,567 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_PROMETHEUS",
+      "label": "Prometheus",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "prometheus",
+      "pluginName": "Prometheus"
+    }
+  ],
+  "__elements": {},
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "9.3.0"
+    },
+    {
+      "type": "panel",
+      "id": "piechart",
+      "name": "Pie chart",
+      "version": ""
+    },
+    {
+      "type": "datasource",
+      "id": "prometheus",
+      "name": "Prometheus",
+      "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "stat",
+      "name": "Stat",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "state-timeline",
+      "name": "State timeline",
+      "version": ""
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "fillOpacity": 85,
+            "lineWidth": 1,
+            "spanNulls": false
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "text": "🔴 DOWN"
+                },
+                "1": {
+                  "text": "🟢 UP"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 31,
+        "w": 19,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "alignValue": "right",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "mergeValues": false,
+        "rowHeight": 0.9,
+        "showValue": "always",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "max by (stream_name) (camera_stream_status_up{stream_name=~\"${location}\"})",
+          "legendFormat": "{{stream_name}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Camera Stream Timeline (Grouped per Location) - Filter: ${location}",
+      "type": "state-timeline"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 5,
+        "x": 19,
+        "y": 0
+      },
+      "id": 9,
+      "options": {
+        "displayLegend": "asTable",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "count by (state_text) (camera_stream_status_up{stream_name=~\"${location}\"})",
+          "instant": true,
+          "legendFormat": "{{state_text}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Stream Status Breakdown in ${location}",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 5,
+        "x": 19,
+        "y": 7
+      },
+      "id": 7,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showValue": true,
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.3.0",
+      "targets": [
+        {
+          "expr": "count(camera_stream_status_up{stream_name=~\"${location}\"})",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          }
+        }
+      ],
+      "title": "Total Streams in ${location}",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 5,
+        "x": 19,
+        "y": 14
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showValue": true,
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.3.0",
+      "targets": [
+        {
+          "expr": "stream_api_errors_total",
+          "legendFormat": "{{source_host}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          }
+        }
+      ],
+      "title": "🚫 API Errors Total per Host",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 0.5
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 5,
+        "x": 19,
+        "y": 23
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showValue": true,
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.3.0",
+      "targets": [
+        {
+          "expr": "stream_api_response_time_seconds",
+          "legendFormat": "{{source_host}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          }
+        }
+      ],
+      "title": "⏱️ API Response Time (sec) per Host",
+      "type": "stat"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 37,
+  "style": "dark",
+  "tags": [
+    "camera",
+    "timeline",
+    "status"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": true,
+          "text": "Soekarno-Hatta (Soetta/T2/T3)",
+          "value": "(?i).*(Soetta|T2|T3).*"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Location",
+        "multi": false,
+        "name": "location",
+        "options": [
+          {
+            "selected": false,
+            "text": "Juanda/Surabaya",
+            "value": "(?i).*(Juanda|Surabaya).*"
+          },
+          {
+            "selected": false,
+            "text": "Hasanuddin (Makassar)",
+            "value": "(?i).*Hasanuddin.*"
+          },
+          {
+            "selected": false,
+            "text": "Sepinggan (Balikpapan)",
+            "value": "(?i).*Sepinggan.*"
+          },
+          {
+            "selected": false,
+            "text": "Sam Ratulangi (Manado)",
+            "value": "(?i).*Ratula(ngi|nui).*"
+          },
+          {
+            "selected": false,
+            "text": "Adi Soemarmo (Solo)",
+            "value": "(?i).*(Adi Soemarmo|Soemarno).*"
+          },
+          {
+            "selected": false,
+            "text": "Lombok",
+            "value": "(?i).*LOMBOK.*"
+          },
+          {
+            "selected": false,
+            "text": "Nongsapura",
+            "value": "(?i).*Nongsapura.*"
+          },
+          {
+            "selected": false,
+            "text": "Sekupang",
+            "value": "(?i).*Sekupang.*"
+          },
+          {
+            "selected": false,
+            "text": "YIA (Yogyakarta)",
+            "value": "(?i).*YIA.*"
+          },
+          {
+            "selected": false,
+            "text": "BODYWORN",
+            "value": "(?i).*BODYWORN.*"
+          },
+          {
+            "selected": false,
+            "text": "Sistik",
+            "value": "(?i).*Sistik.*"
+          },
+          {
+            "selected": true,
+            "text": "Soekarno-Hatta (Soetta/T2/T3)",
+            "value": "(?i).*(Soetta|T2|T3).*"
+          },
+          {
+            "selected": false,
+            "text": "Kertajati",
+            "value": "(?i).*Kertajati.*"
+          },
+          {
+            "selected": false,
+            "text": "Kualanamu",
+            "value": "(?i).*Kualanamu.*"
+          },
+          {
+            "selected": false,
+            "text": "Lagoi",
+            "value": "(?i).*Lagoi.*"
+          },
+          {
+            "selected": false,
+            "text": "Aruk",
+            "value": "(?i).*ARUK.*"
+          },
+          {
+            "selected": false,
+            "text": "Entikong",
+            "value": "(?i).*ENTIKONG.*"
+          },
+          {
+            "selected": false,
+            "text": "Jagoi Babang",
+            "value": "(?i).*JAGOI.*"
+          },
+          {
+            "selected": false,
+            "text": "Harbour Bay",
+            "value": "(?i).*Harbour Bay.*"
+          },
+          {
+            "selected": false,
+            "text": "Marina",
+            "value": "(?i).*Marina.*"
+          },
+          {
+            "selected": false,
+            "text": "Batam Center",
+            "value": "(?i).*BATAM CENTER.*"
+          },
+          {
+            "selected": false,
+            "text": "Nanga Badau",
+            "value": "(?i).*(Nanga Badau|NANGAN BADAU).*"
+          },
+          {
+            "selected": false,
+            "text": "Ngurah Rai (Bali)",
+            "value": "(?i).*NGURAH RAI.*"
+          }
+        ],
+        "query": "",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "10s",
+      "30s",
+      "1m",
+      "5m"
+    ]
+  },
+  "timezone": "",
+  "title": "Camera Stream Status",
+  "uid": "camstream-v30-revision",
+  "version": 4,
+  "weekStart": ""
+}

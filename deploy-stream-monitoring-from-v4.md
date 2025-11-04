@@ -28,7 +28,9 @@ from prometheus_client import CollectorRegistry, Gauge, generate_latest
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import threading
 import time
+from time import perf_counter
 
+# ---------- KONFIGURASI ----------
 API_BASE_URLS = [
     "http://10.0.28.11:4004",
     "http://10.10.2.19:4004",
@@ -38,13 +40,18 @@ API_BASE_URLS = [
     "http://10.5.31.19:4004",
     "http://10.5.30.19:4004",
     "http://10.5.35.19:4004",
+    "http://10.10.8.19:4004"
 ]
 
 EXPORTER_PORT = 9898
 UPDATE_INTERVAL = 60  # detik
+# ----------------------------------
 
 latest_registry = CollectorRegistry(auto_describe=False)
 registry_lock = threading.Lock()
+
+_error_accumulator = {}
+_error_accumulator_lock = threading.Lock()
 
 
 def fetch_metrics():
@@ -52,6 +59,7 @@ def fetch_metrics():
     global latest_registry
     local_registry = CollectorRegistry(auto_describe=False)
 
+    # ---- Definisi Metrics ----
     STREAM_STATUS = Gauge(
         'camera_stream_status_up',
         'Status aktif stream kamera (1=RUNNING, 0=DOWN/Lainnya)',
@@ -59,15 +67,58 @@ def fetch_metrics():
         registry=local_registry
     )
 
+    STREAM_TOTAL = Gauge(
+        'camera_stream_total',
+        'Total jumlah kamera per lokasi (stream_name)',
+        ['stream_name'],
+        registry=local_registry
+    )
+
+    STREAM_STATUS_BREAKDOWN = Gauge(
+        'camera_stream_status_total',
+        'Jumlah kamera per status_text per lokasi',
+        ['stream_name', 'state_text'],
+        registry=local_registry
+    )
+
+    API_RESPONSE_TIME = Gauge(
+        'stream_api_response_time_seconds',
+        'Rata-rata durasi response API per host (detik)',
+        ['source_host'],
+        registry=local_registry
+    )
+
+    API_ERRORS_TOTAL = Gauge(
+        'stream_api_errors_total',
+        'Jumlah total error API per host',
+        ['source_host'],
+        registry=local_registry
+    )
+    # ---------------------------
+
     for base_url in API_BASE_URLS:
         source_host = base_url.split('//')[1].split(':')[0]
+        per_host_durations = []
+        per_host_error_count = 0
+
         try:
+            start_list = perf_counter()
             streams_response = requests.get(f"{base_url}/streams", timeout=10)
+            duration_list = perf_counter() - start_list
             streams_response.raise_for_status()
             streams_data = streams_response.json()
+            per_host_durations.append(duration_list)
         except requests.exceptions.RequestException as e:
             print(f"[WARN] {source_host} gagal ambil daftar streams: {e}")
+            with _error_accumulator_lock:
+                _error_accumulator[source_host] = _error_accumulator.get(source_host, 0) + 1
+            API_ERRORS_TOTAL.labels(source_host=source_host).set(_error_accumulator[source_host])
+            API_RESPONSE_TIME.labels(source_host=source_host).set(0)
             continue
+
+        # hitung kamera per stream_name
+        stream_name_count = {}
+        stream_name_state_count = {}
 
         for stream in streams_data.get('streams', []):
             stream_id = stream.get('stream_id')
@@ -76,18 +127,24 @@ def fetch_metrics():
             if not stream_id or node_num is None:
                 continue
 
+            stream_name_count[stream_name] = stream_name_count.get(stream_name, 0) + 1
+
             detail_url = f"{base_url}/streams/{node_num}/{stream_id}"
             labels = {
                 'stream_id': stream_id,
                 'stream_name': stream_name,
                 'node_num': str(node_num),
-                'source_host': source_host,
+                'source_host': source_host
             }
 
             try:
+                start_detail = perf_counter()
                 detail_response = requests.get(detail_url, timeout=10)
+                duration_detail = perf_counter() - start_detail
                 detail_response.raise_for_status()
                 detail_data = detail_response.json()
+                per_host_durations.append(duration_detail)
+
                 state_text = detail_data.get('stream_stats', {}).get('state', 'UNKNOWN')
                 if state_text == 'UNKNOWN' and detail_data.get('status') and detail_data['status'].get('pipelines'):
                     state_text = detail_data['status']['pipelines'][0].get('state', 'UNKNOWN')
@@ -96,17 +153,45 @@ def fetch_metrics():
                 metric_value = 1 if state_text == 'RUNNING' and is_active else 0
                 labels['state_text'] = state_text
                 STREAM_STATUS.labels(**labels).set(metric_value)
-            except requests.exceptions.RequestException:
+
+                # hitung breakdown
+                key = (stream_name, state_text)
+                stream_name_state_count[key] = stream_name_state_count.get(key, 0) + 1
+
+            except requests.exceptions.RequestException as e:
                 labels['state_text'] = 'API_ERROR'
                 STREAM_STATUS.labels(**labels).set(0)
+                key = (stream_name, 'API_ERROR')
+                stream_name_state_count[key] = stream_name_state_count.get(key, 0) + 1
+                with _error_accumulator_lock:
+                    _error_accumulator[source_host] = _error_accumulator.get(source_host, 0) + 1
+                print(f"[WARN] {source_host} gagal ambil detail {stream_name}: {e}")
 
+        # set metrik total kamera per lokasi
+        for sn, total in stream_name_count.items():
+            STREAM_TOTAL.labels(stream_name=sn).set(total)
+
+        # set breakdown per state
+        for (sn, state_text), total in stream_name_state_count.items():
+            STREAM_STATUS_BREAKDOWN.labels(stream_name=sn, state_text=state_text).set(total)
+
+        # set response time avg per host
+        avg_time = sum(per_host_durations) / len(per_host_durations) if per_host_durations else 0.0
+        API_RESPONSE_TIME.labels(source_host=source_host).set(avg_time)
+
+        # set error total per host
+        with _error_accumulator_lock:
+            total_err = _error_accumulator.get(source_host, 0)
+        API_ERRORS_TOTAL.labels(source_host=source_host).set(total_err)
+
+    # swap registry atomically
     with registry_lock:
         latest_registry = local_registry
+
     print(f"[{time.strftime('%H:%M:%S')}] Metrics updated successfully.")
 
 
 def background_updater():
-    """Thread background untuk update metrics tiap interval."""
     while True:
         try:
             fetch_metrics()
